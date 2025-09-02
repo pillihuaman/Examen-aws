@@ -45,7 +45,7 @@ jobs:
         run: |
           sam deploy \
             --stack-name examen-java-lambda-stack \
-            --s3-bucket sam-deployment-artifacts-614520203803 \
+            --s3-bucket pipeline-artefactos-examen-614520203803 \
             --capabilities CAPABILITY_IAM \
             --region us-east-1 \
-            --no-fail-on-empty-changeset #
+            --no-fail-on-empty-changeset
