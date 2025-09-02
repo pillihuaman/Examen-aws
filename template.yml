@@ -1,24 +1,54 @@
-version: 0.2
+# Esta línea le dice a AWS qué versión del formato de plantilla estás usando.
+AWSTemplateFormatVersion: '2010-09-09'
 
-phases:
-  install:
-    runtime-versions:
-      java: corretto17  # Especificamos la versión de Java
-    commands:
-      - echo "Instalando SAM CLI..."
-      - pip install aws-sam-cli
+# Esta línea activa las macros de SAM para simplificar la sintaxis (ej. AWS::Serverless::Function).
+Transform: AWS::Serverless-2016-10-31
 
-  build:
-    commands:
-      - echo "Compilando y empaquetando el proyecto con SAM..."
-      # sam build compila el código y prepara los artefactos
-      - sam build
-      
-      # sam package empaqueta los artefactos y los sube a un bucket S3
-      # Reemplaza 'mi-bucket-de-artefactos-pipeline' con el nombre de tu bucket (Paso 2)
-      - sam package --output-template-file packaged.yaml --s3-bucket mi-bucket-de-artefactos-pipeline
+Description: >
+  Microservicio para la gestión de órdenes, implementado con Spring Boot en AWS Lambda.
 
-artifacts:
-  files:
-    # El artefacto de salida es la plantilla de CloudFormation lista para desplegar
-    - packaged.yaml
+# ====================================================================
+# === ESTA ES LA SECCIÓN OBLIGATORIA QUE ESTÁ CAUSANDO EL ERROR ===
+# Asegúrate de que "Resources:" no tenga NINGÚN espacio al principio.
+# ====================================================================
+Resources:
+  # Definición de tu Función Lambda
+  OrdenesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      Handler: pillihuaman.com.pe.examen.StreamLambdaHandler::handleRequest
+      Runtime: java17
+      Architectures:
+        - x86_64
+      MemorySize: 1024
+      Timeout: 30
+      Environment:
+        Variables:
+          ORDENES_TABLE_NAME: !Ref OrdenesTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrdenesTable
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  # Definición de tu Tabla DynamoDB
+  OrdenesTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: ordenId
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+# (Opcional pero recomendado) Esta sección define las salidas, como la URL de tu API
+Outputs:
+  OrdenesApiEndpoint:
+    Description: "URL del endpoint de API Gateway"
+    Value: !Sub "https://{ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orden"

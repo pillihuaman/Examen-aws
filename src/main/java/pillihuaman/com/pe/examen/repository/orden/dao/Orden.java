@@ -13,4 +13,9 @@ public class Orden {
     private String fecha;
     private double montoTotal;
     private String estado;
+
+    @DynamoDbPartitionKey
+    public String getOrdenId() {
+        return ordenId;
+    }
 }
