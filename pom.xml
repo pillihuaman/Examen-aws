@@ -89,12 +89,7 @@
             <version>0.11.5</version>
         </dependency>
 
-        <!-- Tu librería compartida -->
-        <dependency>
-            <groupId>pillihuaman.com.pe</groupId>
-            <artifactId>pillihuaman.com.pe.lib</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+
 
         <!-- DynamoDB SDK -->
         <dependency>
@@ -127,13 +122,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>pillihuamanlib-pillihuaman-com-pe-lib</id>
-            <url>https://pillihuamanlib-614520203803.d.codeartifact.us-east-1.amazonaws.com/maven/pillihuaman-com-pe-lib/</url>
-        </repository>
-    </repositories>
 
     <build>
         <plugins>
