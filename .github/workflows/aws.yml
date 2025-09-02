@@ -37,17 +37,17 @@ jobs:
       - name: Install SAM CLI
         run: pip install aws-sam-cli
 
-      # 5. Construye el proyecto SAM. Esto compila tu código Java y prepara los artefactos
+      # 5. Construye el proyecto SAM. Esto compila tu código Java con Maven.
       - name: Build SAM Application
         run: sam build
 
       # 6. Despliega la aplicación en AWS.
-      #    Este comando empaqueta, sube a S3 y despliega en CloudFormation
+      #    Este comando empaqueta, sube a S3 y despliega usando CloudFormation
       - name: Deploy SAM Application
         run: |
           sam deploy \
             --stack-name examen-java-lambda-stack \
-            --s3-bucket pipeline-artefactos-examen-614520203803 \
+           --s3-bucket pipeline-artefactos-examen-614520203803 \
             --capabilities CAPABILITY_IAM \
             --region us-east-1 \
             --no-fail-on-empty-changeset \
