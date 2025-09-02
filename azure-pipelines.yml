@@ -1,42 +1,24 @@
-trigger:
-  branches:
-    include:
-      - main  # Ejecutar el pipeline solo en la rama 'main'
+version: 0.2
 
-pool:
-  vmImage: 'ubuntu-latest'  # Agente hospedado de Azure
+phases:
+  install:
+    runtime-versions:
+      java: corretto17  # Especificamos la versión de Java
+    commands:
+      - echo "Instalando SAM CLI..."
+      - pip install aws-sam-cli
 
-steps:
-  # 🔹 Compilar el proyecto con Maven
-  - task: Maven@3
-    inputs:
-      mavenPomFile: 'pom.xml'
-      goals: 'clean package'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      javaHomeOption: 'JDKVersion'
-      mavenVersionOption: 'Default'
-      mavenOptions: '-Xmx3072m'
-      sonarQubeRunAnalysis: false
-      isJacocoCoverageReportXML: false
+  build:
+    commands:
+      - echo "Compilando y empaquetando el proyecto con SAM..."
+      # sam build compila el código y prepara los artefactos
+      - sam build
+      
+      # sam package empaqueta los artefactos y los sube a un bucket S3
+      # Reemplaza 'mi-bucket-de-artefactos-pipeline' con el nombre de tu bucket (Paso 2)
+      - sam package --output-template-file packaged.yaml --s3-bucket mi-bucket-de-artefactos-pipeline
 
-  # 🔹 Copiar el archivo JAR generado
-  - task: CopyFiles@2
-    inputs:
-      contents: 'target/*.jar'
-      targetFolder: '$(Build.ArtifactStagingDirectory)'
-
-  # 🔹 Publicar los artefactos de la compilación
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'drop'
-
-  # 🔹 Desplegar en Azure Web App
-  - task: AzureWebApp@1
-    inputs:
-      azureSubscription: 'Azure subscription 1'  # Nombre de la suscripción en Azure DevOps
-      appName: 'Microsoft.HealthBot'  # Nombre de tu aplicación en Azure
-      resourceGroupName: 'zarmirRecurso2'  # Grupo de recursos
-      package: '$(Build.ArtifactStagingDirectory)/*.jar'
-      runtimeStack: 'JAVA|17-java17'  # Define la versión de Java (ajústala si es necesario)
+artifacts:
+  files:
+    # El artefacto de salida es la plantilla de CloudFormation lista para desplegar
+    - packaged.yaml
