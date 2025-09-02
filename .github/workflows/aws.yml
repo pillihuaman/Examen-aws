@@ -41,8 +41,7 @@ jobs:
       - name: Build SAM Application
         run: sam build
 
-      # 6. Despliega la aplicación en AWS.
-      #    Este comando empaqueta, sube a S3 y despliega usando CloudFormation
+
       - name: Deploy SAM Application
         run: |
           sam deploy \
